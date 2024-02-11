@@ -49,7 +49,7 @@ def main():
         while True:
             days_until_expiry = check_subscription(api_key)
 
-            if days_until_expiry <= 365:  # Trigger notification if subscription is a year or less
+            if days_until_expiry <= 30:  # Trigger notification if subscription is a year or less
                 send_notification(webhook_url, days_until_expiry)
                 print("Notification sent to Discord!")
             else:
