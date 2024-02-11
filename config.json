@@ -1,0 +1,5 @@
+{
+    "real_debrid_api_key": "REPLACE WITH REAL DEBRID API",
+    "discord_webhook_url": "REPLACE WITH WEBHOOK URL",
+    "check_interval": 86400
+}
