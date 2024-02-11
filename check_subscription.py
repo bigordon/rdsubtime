@@ -9,7 +9,7 @@ def read_config():
 
 def check_subscription(api_key):
     # Make a request to Real Debrid API to get subscription status
-    real_debrid_url = f'https://api.real-debrid.com/rest/1.0/user?auth_token={a>
+    real_debrid_url = f'https://api.real-debrid.com/rest/1.0/user?auth_token={api_key}'
     response = requests.get(real_debrid_url)
     data = response.json()
     
@@ -21,7 +21,7 @@ def check_subscription(api_key):
         expiration = int(expiration_str)
     except ValueError:
         # Handle if the date is in a different format
-        expiration = int(datetime.strptime(expiration_str.split('T')[0], "%Y-%m>
+        expiration = int(datetime.strptime(expiration_str.split('T')[0], "%Y-%m-%d").timestamp())
     
     # Calculate days until expiration
     today_timestamp = int(time.time())
@@ -30,33 +30,35 @@ def check_subscription(api_key):
     return days_until_expiry
 
 def send_notification(webhook_url, days_left):
-    # Round to whole number
+    # Round the number of days left to the nearest whole number
     rounded_days_left = round(days_left)
-
+    
     # Send notification to Discord via webhook
     payload = {
-        "content": f"Your Real Debrid subscription is expiring in {rounded_days>
+        "content": f"Your Real Debrid subscription is expiring in {rounded_days_left} days. Please renew!"
     }
     requests.post(webhook_url, json=payload)
 
 def main():
-    config = read_config()
-    api_key = config['real_debrid_api_key']
-    webhook_url = config['discord_webhook_url']
-    check_interval = config['check_interval']
-    
-    while True:
-        days_until_expiry = check_subscription(api_key)
+    try:
+        config = read_config()
+        api_key = config['real_debrid_api_key']
+        webhook_url = config['discord_webhook_url']
+        check_interval = config['check_interval']
+        
+        while True:
+            days_until_expiry = check_subscription(api_key)
 
-        if days_until_expiry <= 30: # change to how ever many days until expiration
-            send_notification(webhook_url, days_until_expiry)
-            print("Notification sent to Discord!")
-        else:
-            print("Subscription is still valid.")
+            if days_until_expiry <= 365:  # Trigger notification if subscription is a year or less
+                send_notification(webhook_url, days_until_expiry)
+                print("Notification sent to Discord!")
+            else:
+                print("Subscription is still valid.")
 
-        # Wait for specified interval before checking again
-        time.sleep(check_interval)
+            # Wait for specified interval before checking again
+            time.sleep(check_interval)
+    except KeyboardInterrupt:
+        print("Script terminated by user.")
 
 if __name__ == "__main__":
     main()
-    
