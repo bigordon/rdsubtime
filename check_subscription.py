@@ -3,7 +3,7 @@ import json
 import time
 
 REAL_DEBRID_API_KEY = 'YOUR_REAL_DEBRID_API_KEY'
-PLEX_WEBHOOK_URL = 'YOUR_PLEX_WEBHOOK_URL'
+DISCORD_WEBHOOK_URL = 'YOUR_DISCORD_WEBHOOK_URL'
 CHECK_INTERVAL = 86400  # 24 hours in seconds
 
 def check_subscription():
@@ -22,13 +22,11 @@ def check_subscription():
     return days_until_expiry
 
 def send_notification():
-    # Send notification to Plex via webhook
+    # Send notification to Discord via webhook
     payload = {
-        "payload": {
-            "notification": "Your Real Debrid subscription is expiring soon. Please renew!"
-        }
+        "content": "Your Real Debrid subscription is expiring soon. Please renew!"
     }
-    requests.post(PLEX_WEBHOOK_URL, json=payload)
+    requests.post(DISCORD_WEBHOOK_URL, json=payload)
 
 def main():
     while True:
@@ -36,7 +34,7 @@ def main():
 
         if days_until_expiry <= 30:
             send_notification()
-            print("Notification sent to Plex!")
+            print("Notification sent to Discord!")
         else:
             print("Subscription is still valid.")
 
